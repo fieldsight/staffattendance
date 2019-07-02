@@ -1,36 +1,45 @@
 package np.com.naxa.staffattendance.attedancedashboard
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.nfc.NfcAdapter
+import android.os.Build
 import android.os.Bundle
 import android.support.annotation.Nullable
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.support.design.widget.BottomSheetDialogFragment
 import android.view.View
+import kotlinx.android.synthetic.main.fragment_take_attedance_dialog.*
 import kotlinx.android.synthetic.main.fragment_take_attedance_dialog.view.*
+import kotlinx.android.synthetic.main.fragment_take_attedance_dialog.view.tv_take_attedance_frag_desc
 import np.com.naxa.staffattendance.R
 import np.com.naxa.staffattendance.attendence.AttendanceResponse
 import np.com.naxa.staffattendance.attendence.TeamMemberResposne
 import np.com.naxa.staffattendance.common.IntentConstants
 import np.com.naxa.staffattendance.database.AttendanceDao
-import java.util.*
-import kotlin.concurrent.fixedRateTimer
+import org.idpass.mobile.api.IDPassConstants
+import org.idpass.mobile.api.IDPassIntent
 
 
 class AttedanceBottomFragment : BottomSheetDialogFragment() {
 
-    private lateinit var demoTimer: Timer
+    private val IDENTIFY_RESULT_INTENT = 1
     var staff: TeamMemberResposne? = null
     var statusDesc: Array<String>? = null
     var loadedDate: String? = null
     lateinit var listener: OnAttedanceTakenListener
+    private var nfcAdapter: NfcAdapter? = null
+    val enablePersonSelection = true
+
 
     interface OnAttedanceTakenListener {
         fun onAttedanceTaken(position: Int)
     }
 
 
-    fun onClickListener(listener: OnAttedanceTakenListener){
+    fun onClickListener(listener: OnAttedanceTakenListener) {
         this.listener = listener
     }
 
@@ -40,7 +49,7 @@ class AttedanceBottomFragment : BottomSheetDialogFragment() {
             staff = it as TeamMemberResposne
         }
         arguments?.getString(IntentConstants.ATTENDANCE_DATE)?.let {
-            loadedDate = it;
+            loadedDate = it
         }
 
     }
@@ -55,51 +64,79 @@ class AttedanceBottomFragment : BottomSheetDialogFragment() {
                 false)
 
         view.tv_take_attedance_frag_staff_name.text = staff?.firstName
-        demoTimer = fixedRateTimer("timer", false, 1000, 1000) {
-            requireActivity().runOnUiThread {
-                goToNextStep(view)
-            }
-        }
         statusDesc = resources.getStringArray(R.array.attedance_status_desc);
-        loadFirstMessage(view)
-        return view;
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        demoTimer.cancel()
+        if (enablePersonSelection && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            nfcAdapter = NfcAdapter.getDefaultAdapter(context)
+        }
+
+
+        return view
     }
 
     private fun goToNextStep(view: View) {
         val currentCount: Int = view.statusViewScroller.statusView.currentCount
         if (currentCount < 4) {
-            setMessage(currentCount - 1, view)
+            setMessage(currentCount - 1)
             view.statusViewScroller.statusView.currentCount = currentCount + 1
 
         } else {
-            saveAttedance()
             dismiss()
             listener.onAttedanceTaken(1)
         }
 
     }
 
-    fun saveAttedance() {
+    override fun onPause() {
+        super.onPause()
+        if (enablePersonSelection && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            nfcAdapter?.disableReaderMode(this.activity)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IDENTIFY_RESULT_INTENT && resultCode == Activity.RESULT_OK) {
+            val signedActionBase64 = data!!.getStringExtra(IDPassConstants.IDPASS_SIGNED_ACTION_RESULT_EXTRA)
+            saveAttedanceWithIDPass(signedActionBase64)
+            setMessage(2)
+        } else {
+            //todo: something happened? show error in UI
+        }
+    }
+
+
+    private fun saveAttedanceWithIDPass(signedActionBase64: String) {
         val attendanceResponse = AttendanceResponse()
         attendanceResponse.setAttendanceDate(loadedDate)
         attendanceResponse.setStaffs(listOf(staff?.id))
-        attendanceResponse.setStaffProofs(listOf("demo-attedance-proof"))//todo: add attendanceProofToUpload
+        attendanceResponse.setStaffProofs(listOf(signedActionBase64))
         attendanceResponse.dataSyncStatus = AttendanceDao.SyncStatus.FINALIZED
         AttedanceLocalSource.instance.updateAttendance(loadedDate, attendanceResponse, staff?.teamID)
-
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            nfcAdapter?.enableReaderMode(this.activity, { tag ->
+                val intent = IDPassIntent.intentIdentify(
+                        IDPassConstants.IDPASS_TYPE_MIFARE,
+                        true,
+                        true,
+                        tag)
+                startActivityForResult(intent, IDENTIFY_RESULT_INTENT)
+            }, NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, null)
+        }
+    }
+
 
     private fun loadFirstMessage(view: View) {
-        setMessage(0, view)
+        setMessage(0)
     }
 
-    private fun setMessage(currentCount: Int, view: View) {
-        view.tv_take_attedance_frag_desc.text = statusDesc?.get(currentCount)
+    private fun setMessage(currentCount: Int) {
+        tv_take_attedance_frag_desc.text = statusDesc?.get(currentCount)
     }
 
     companion object {

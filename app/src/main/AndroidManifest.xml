@@ -33,7 +33,7 @@
         <activity
             android:name=".attedancedashboard.AttendancesDashboardActivity"
             android:exported="true" />
-        <activity android:name=".attendence.v2.AttedanceActivity" />
+        <activity android:name=".attendence.v2.AttendanceActivity" />
         <activity android:name=".PreferencesActivity" />
 
         <meta-data

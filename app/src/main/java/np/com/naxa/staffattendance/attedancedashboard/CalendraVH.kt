@@ -6,8 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import np.com.naxa.staffattendance.R
-import np.com.naxa.staffattendance.attendence.v2.AttedanceActivity
-import np.com.naxa.staffattendance.database.TeamDao
+import np.com.naxa.staffattendance.attendence.v2.AttendanceActivity
 
 
 class CalendarVH(inflater: LayoutInflater, parent: ViewGroup) :
@@ -34,7 +33,7 @@ class CalendarVH(inflater: LayoutInflater, parent: ViewGroup) :
         tvDate?.text = day.dayOfMonth
         tvMonthYear?.text = day.date
         rootLayout?.setOnClickListener {
-            var intent = AttedanceActivity.newIntent(itemView.context, date = day.fullDate, teamId = day.teamId, teamName = day.teamName)
+            var intent = AttendanceActivity.newIntent(itemView.context, date = day.fullDate, teamId = day.teamId, teamName = day.teamName)
             itemView.context.startActivity(intent);
         }
 

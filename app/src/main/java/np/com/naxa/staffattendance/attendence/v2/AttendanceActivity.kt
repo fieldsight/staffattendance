@@ -1,8 +1,6 @@
 package np.com.naxa.staffattendance.attendence.v2
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
@@ -13,7 +11,6 @@ import np.com.naxa.staffattendance.R
 import np.com.naxa.staffattendance.StaffListAdapter
 import np.com.naxa.staffattendance.attedancedashboard.AttedanceBottomFragment
 import np.com.naxa.staffattendance.attedancedashboard.ItemOffsetDecoration
-
 import np.com.naxa.staffattendance.attendence.TeamMemberResposne
 import np.com.naxa.staffattendance.common.BaseActivity
 import np.com.naxa.staffattendance.common.IntentConstants
@@ -21,10 +18,9 @@ import np.com.naxa.staffattendance.database.AttendanceDao
 import np.com.naxa.staffattendance.database.StaffDao
 import np.com.naxa.staffattendance.database.TeamDao
 import np.com.naxa.staffattendance.utlils.DateConvertor
-import np.com.naxa.staffattendance.utlils.ToastUtils
 
 
-class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListener {
+class AttendanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListener {
     override fun onStaffClick(pos: Int, staff: TeamMemberResposne?) {
         val attedanceBottomFragment = AttedanceBottomFragment.newInstance()
         attedanceBottomFragment.arguments = Bundle().apply {
@@ -38,8 +34,7 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
                 setupRecyclerView()//todo: use diff utils or something better
             }
         })
-        attedanceBottomFragment.show(supportFragmentManager,
-                "add_photo_dialog_fragment")
+        attedanceBottomFragment.show(supportFragmentManager, "add_photo_dialog_fragment")
 
     }
 
@@ -115,7 +110,7 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
 
     companion object {
         fun newIntent(context: Context, date: String, teamId: String, teamName: String): Intent {
-            val intent = Intent(context, AttedanceActivity::class.java)
+            val intent = Intent(context, AttendanceActivity::class.java)
             intent.putExtra(IntentConstants.ATTENDANCE_DATE, date);
             intent.putExtra(IntentConstants.TEAM_ID, teamId);
             intent.putExtra(IntentConstants.TEAM_NAME, teamName);
