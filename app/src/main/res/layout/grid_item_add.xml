@@ -4,26 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/border"
     android:clickable="true"
     android:focusable="true"
-    android:background="@drawable/border"
     app:cardCornerRadius="20dp"
     app:cardElevation="1dp">
 
 
-        <android.support.v7.widget.AppCompatImageView
-            app:srcCompat="@drawable/ic_add_24dp"
-            android:id="@+id/tv_date"
-            style="@style/TextAppearance.AppCompat.Display3"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center"
-            tools:text="21" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_centerInParent="true"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:drawableTop="@drawable/ic_add_24dp"
+            android:text="add member"
+            android:textAlignment="center" />
 
 
-
-
-
+    </RelativeLayout>
 
 
 </android.support.design.card.MaterialCardView>
