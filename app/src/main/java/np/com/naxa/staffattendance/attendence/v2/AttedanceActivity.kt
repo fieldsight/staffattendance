@@ -8,6 +8,7 @@ import android.content.Intent
 import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.Bundle
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -40,7 +41,6 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
     private val IDENTIFY_RESULT_INTENT = 1
 
     override fun onStaffClick(pos: Int, staff: TeamMemberResposne?) {
-        0
     }
 
     override fun onStaffLongClick(pos: Int) {
@@ -113,7 +113,7 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
                 val staff = staffs[0]
                 saveAttendance(staff, signedActionBase64)
                 ToastUtils.showLong("Attendance for ${staff.firstName} has been recorded")
-                SoundUtils.playNotificationSound()
+                setupRecyclerView()//todo: use diffutils
             } else {
                 DialogFactory.createMessageDialog(this, "Non registered person", "This person haven't been registered into $teamName").show()
             }
@@ -144,7 +144,7 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
         val teamDao = TeamDao()
         val mLayoutManager = LinearLayoutManager(applicationContext)
         val teamId = teamDao.oneTeamIdForDemo
-        attedanceIds = AttendanceDao().getAttedanceByDate(teamId, loadedDate).presentStaffIds
+        attedanceIds = AttendanceDao.getInstance().getAttedanceByDate(teamId, loadedDate).presentStaffIds
 
         val staffs = StaffDao().getStaffByTeamId(teamId)
         stafflistAdapter = StaffListAdapter(this, staffs, enablePersonSelection, attedanceIds, this)
