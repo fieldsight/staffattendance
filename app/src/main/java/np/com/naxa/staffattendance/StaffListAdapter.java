@@ -2,6 +2,7 @@ package np.com.naxa.staffattendance;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
@@ -109,7 +110,7 @@ public class StaffListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public void markPresent(String staffId) {
         for (int i = 0; i < staffList.size(); i++) {
-            if(staffList.get(i).getId().equals(staffId)) {
+            if (staffList.get(i).getId().equals(staffId)) {
                 Timber.i("Found staff %s / %s", staffId, i);
                 toggleSelection(i);
                 return;
@@ -117,6 +118,34 @@ public class StaffListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
         Timber.i("Not Found staff: %s", staffId);
     }
+
+
+    public void notifyChanges(List<String> newAttendanceIds) {
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return attedanceIds.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newAttendanceIds.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int i, int i1) {
+                return attedanceIds.get(i).equals(attedanceIds.get(i1));
+            }
+
+            @Override
+            public boolean areContentsTheSame(int i, int i1) {
+                return attedanceIds.get(i).equals(attedanceIds.get(i1));
+            }
+        });
+
+        diff.dispatchUpdatesTo(this);
+    }
+
 
     public void toggleSelection(int pos) {
 
@@ -240,7 +269,7 @@ public class StaffListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
 
     public class StaffVH extends RecyclerView.ViewHolder {
-        private TextView staffName, staffStatus, siteAddress, sitePhone, staffType, sitePendingFormsNumber, site, iconText, timestamp, tvTagOfflineSite,staffPost;
+        private TextView staffName, staffStatus, siteAddress, sitePhone, staffType, sitePendingFormsNumber, site, iconText, timestamp, tvTagOfflineSite, staffPost;
         private ImageView iconImp, imgProfile;
         private RelativeLayout iconContainer, iconBack, iconFront;
         private RelativeLayout rootLayout;
