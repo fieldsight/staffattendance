@@ -85,6 +85,6 @@ dependencies {
         transitive = true
     }
 
-    implementation 'org.idpass.mobile.api:idpass-mobile-api:0.0.2'
+    implementation 'org.idpass.mobile.api:idpass-mobile-api:0.0.3'
 
 }
