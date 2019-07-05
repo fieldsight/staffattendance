@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,8 +64,8 @@ public class StaffListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        final TeamMemberResposne staff = staffList.get(position);
+    public void onBindViewHolder(@NotNull final RecyclerView.ViewHolder holder, int position) {
+        final TeamMemberResposne staff = staffList.get(holder.getAdapterPosition());
         final StaffVH staffVH = (StaffVH) holder;
         setupPreviousAttendance(attedanceIds, staff.getId(), staffVH);
 
@@ -85,7 +87,7 @@ public class StaffListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         staffVH.rootLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                listener.onStaffLongClick(position);
+                listener.onStaffLongClick(staffVH.getAdapterPosition());
                 return true;
             }
         });
