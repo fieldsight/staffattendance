@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit
 
 class AttendancesDashboardActivity : AppCompatActivity() {
 
+    private lateinit var listAdapter: ListAdapter
     private var exitOnBackPress: Boolean = false;
     private val backPressHandler = Handler()
     private val runnable = { exitOnBackPress = false }
@@ -51,7 +52,6 @@ class AttendancesDashboardActivity : AppCompatActivity() {
         DialogFactory.createProgressDialogHorizontal(this@AttendancesDashboardActivity, "Please Wait")
         setSupportActionBar(toolbar)
         supportActionBar?.title = ""
-        setupListAdapter(generateGridItems())
         setupSwipeToRefresh()
 
 
@@ -129,7 +129,7 @@ class AttendancesDashboardActivity : AppCompatActivity() {
         list.add(getString(R.string.title_team))
         list.add("")
 
-        var teamName: String = ""
+        var teamName = ""
         var teamMembersCount = "0"
         val type = object : TypeToken<List<MyTeamResponse>>() {}.type
         val teams = Gson().fromJson<List<MyTeamResponse>>(SharedPreferenceUtils.getFromPrefs(this, SharedPreferenceUtils.KEY.teams, "[]"), type)
@@ -164,6 +164,11 @@ class AttendancesDashboardActivity : AppCompatActivity() {
         return list;
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupListAdapter(generateGridItems())
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_dashboard, menu);
         return super.onCreateOptionsMenu(menu)
@@ -194,11 +199,12 @@ class AttendancesDashboardActivity : AppCompatActivity() {
     private fun setupListAdapter(days: List<Any>) {
 
         val manager = LinearLayoutManager(this)
+        listAdapter = ListAdapter(days)
         recycler_view.setLayoutManager(manager)
         recycler_view.setItemAnimator(DefaultItemAnimator())
         recycler_view.apply {
             layoutManager = GridLayoutManager(this@AttendancesDashboardActivity, 2)
-            adapter = ListAdapter(days)
+            adapter = listAdapter
         }
         recycler_view.addItemDecoration(ItemOffsetDecoration(this, R.dimen.spacing_small))
 
