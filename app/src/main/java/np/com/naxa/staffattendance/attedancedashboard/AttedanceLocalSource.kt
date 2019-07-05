@@ -1,10 +1,9 @@
 package np.com.naxa.staffattendance.attedancedashboard
 
-import com.google.gson.Gson
 import np.com.naxa.staffattendance.attendence.AttendanceResponse
 import np.com.naxa.staffattendance.database.AttendanceDao
-import org.json.JSONObject
 import org.json.JSONException
+import org.json.JSONObject
 
 
 class AttedanceLocalSource {

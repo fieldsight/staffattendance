@@ -63,11 +63,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         myTeamRepository = new MyTeamRepository();
         initUI();
 
-
-        if (BuildConfig.DEBUG) {
-            tvUserName.getEditText().setText(Login.INSTANCE.getUsername());
-            tvPassword.getEditText().setText(Login.INSTANCE.getPassword());
-        }
     }
 
     private void initUI() {
