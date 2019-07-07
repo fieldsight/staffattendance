@@ -126,7 +126,7 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
         val attendanceResponse = AttendanceResponse()
         attendanceResponse.setAttendanceDate(loadedDate)
         attendanceResponse.setStaffs(listOf(staff.id))
-        attendanceResponse.idPassProofs = Gson().toJson(hashMapOf(staff.id.toInt() to signedAction))
+        attendanceResponse.idPassProofs = Gson().toJson(hashMapOf(staff.id.trim().toBigInteger() to signedAction))
         attendanceResponse.dataSyncStatus = AttendanceDao.SyncStatus.FINALIZED
         AttedanceLocalSource.instance.updateAttendance(loadedDate, attendanceResponse, staff.teamID)
 
