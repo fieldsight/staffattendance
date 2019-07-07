@@ -73,7 +73,7 @@ class AttendancesDashboardActivity : AppCompatActivity() {
                         override fun onCompleted() {
                             closePleaseWaitDialog()
                             showMessage("Everything is Up-to-date")
-                            Timber.i("onCompleted")
+                            setupListAdapter(generateGridItems())
                         }
 
                         override fun onError(e: Throwable) {
@@ -206,7 +206,10 @@ class AttendancesDashboardActivity : AppCompatActivity() {
             layoutManager = GridLayoutManager(this@AttendancesDashboardActivity, 2)
             adapter = listAdapter
         }
-        recycler_view.addItemDecoration(ItemOffsetDecoration(this, R.dimen.spacing_small))
+        val count = recycler_view.itemDecorationCount
+        if (count == 0) {
+            recycler_view.addItemDecoration(ItemOffsetDecoration(this, R.dimen.spacing_small))
+        }
 
     }
 

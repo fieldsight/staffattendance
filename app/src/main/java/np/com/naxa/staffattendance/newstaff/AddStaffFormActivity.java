@@ -353,52 +353,28 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
                 idpassEnroll.setError(null);
                 idpassEnroll();
                 break;
-
-            case R.id.staff_save:
-                if (validate()) {
-                    NewStaffPojo staff = getNewStaffDetail();
-                    NewStaffDao.getInstance().saveNewStaff(staff);
-                    putDataInStafftable(staff);
-                    finish();
-                    startActivity(getIntent());
-                    ToastUtils.showShort("New staff detail saved.");
-                }
-                break;
-
             case R.id.staff_send:
                 if (validate()) {
-                    final ProgressDialog progressDialog = DialogFactory.createProgressDialogHorizontal(this, getString(R.string.msg_please_wait));
-
-                    //progressDialog.show();
-
                     NewStaffPojo staff = getNewStaffDetail();
-                    new NewStaffDao().saveNewStaff(staff);
-                    putDataInStafftable(staff);
-                    finish();
+                    boolean hasSaved;
+                    long status1 = NewStaffDao.getInstance().saveNewStaff(staff);
+                    long status2 = putDataInStafftable(staff);
+                    boolean hasNotSaved = status1 == -1 || status2 == -1;
 
-//
-//                    new NewStaffCall().upload(getNewStaffDetail(), photoFileToUpload, new NewStaffCall.NewStaffCallListener() {
-//                        @Override
-//                        public void onError() {
-//                            progressDialog.dismiss();
-//                            AttendanceViewPagerActivity.start(AddStaffFormActivity.this, true);
-//                            finish();
-//                        }
-//
-//                        @Override
-//                        public void onSuccess() {
-//
-//                            progressDialog.dismiss();
-//                            AttendanceViewPagerActivity.start(AddStaffFormActivity.this, true);
-//                            finish();
-//                        }
-//                    });
+                    if (hasNotSaved) {
+                        finish();
+                        startActivity(getIntent());
+                        ToastUtils.showShort(staff.getFirstName() + " " + staff.getLastName() + " has been added.");
+                    } else {
+                        ToastUtils.showLong("Failed to add member");
+                    }
+
                 }
                 break;
         }
     }
 
-    private void putDataInStafftable(NewStaffPojo newStaffDetail) {
+    private long putDataInStafftable(NewStaffPojo newStaffDetail) {
         String id = new TeamDao().getOneTeamIdForDemo();
         TeamMemberResposne member = new TeamMemberResposneBuilder()
                 .setFirstName(newStaffDetail.getFirstName())
@@ -411,7 +387,7 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
                 .setId(newStaffDetail.getId())
                 .createTeamMemberResposne();
 
-        new StaffDao().saveStaff(member);
+        return StaffDao.getInstance().saveStaff(member);
     }
 
 
@@ -450,7 +426,7 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
         } else if (ethinicity.getEditText().getText().toString().isEmpty()) {
             showErrorMessage(ethinicity, "Enter ethnicity");
         } else if (hasNotSelectedBank) {
-            showErrorMessage(bankSpinner, "Choose a bankSpinner");
+            showErrorMessage(bankSpinner, "Choose a bank");
         } else if (hasSelectedOtherBank && bankNameOther.getText().toString().isEmpty()) {
             showErrorMessage(bankNameOther, "Enter Bank name");
         } else if (hasNotSelectedBank && accountNumber.getEditText().getText().toString().isEmpty()) {
@@ -466,10 +442,14 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
         } else if (TextUtils.isEmpty(idPassDID)) {
             showErrorMessage(idpassEnroll, "Please register with IDPASS");
             showErrorMessage(idpassIdentify, "Please register with IDPASS");
-        } else {
+        }  else {
             validation = true;
         }
         return validation;
+    }
+
+    private boolean isIDPassNotUNIQUE(String idPassDID) {
+        return StaffDao.getInstance().getStaffByIdPassDID(idPassDID).size() > 0;
     }
 
 
@@ -648,12 +628,17 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
 
         if (requestCode == IDENTIFY_RESULT_INTENT && resultCode == Activity.RESULT_OK) {
             String signedActionBase64 = data.getStringExtra(IDPassConstants.IDPASS_SIGNED_ACTION_RESULT_EXTRA);
-
             SignedAction signedAction = IDPassIntent.signedActionBuilder(signedActionBase64);
-
             idPassDID = signedAction.getAction().getPerson().getDid();
             String name = signedAction.getAction().getPerson().getName();
-            idpassValue.setText(name + " - " + idPassDID);
+
+            if (isIDPassNotUNIQUE(idPassDID)) {
+                idpassValue.setText("Duplicate IDPASS registration");
+
+            }else {
+                idpassValue.setText(name + " - " + idPassDID);
+            }
+
         } else {
 
             EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {

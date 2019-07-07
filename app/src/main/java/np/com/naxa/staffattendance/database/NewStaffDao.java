@@ -3,7 +3,6 @@ package np.com.naxa.staffattendance.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import np.com.naxa.staffattendance.pojo.NewStaffPojo;
@@ -27,9 +26,9 @@ public class NewStaffDao {
         return newStaffDao;
     }
 
-    public void saveNewStaff(NewStaffPojo newStaffPojo) {
+    public long saveNewStaff(NewStaffPojo newStaffPojo) {
         Timber.d("saveNewStaff: did: " + newStaffPojo.getIdPassDID());
-        DatabaseHelper.getDatabaseHelper()
+        return DatabaseHelper.getDatabaseHelper()
                 .getWritableDatabase()
                 .insert(DatabaseHelper.TABLE_NEW_STAFF,
                         null,
