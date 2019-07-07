@@ -125,8 +125,6 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
         attendanceResponse.idPassProofs = Gson().toJson(hashMapOf(staff.id.trim().toBigInteger() to signedAction))
         attendanceResponse.dataSyncStatus = AttendanceDao.SyncStatus.FINALIZED
         AttedanceLocalSource.instance.updateAttendance(loadedDate, attendanceResponse, staff.teamID)
-        Timber.i("Taking attedance for ${loadedDate}")
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
