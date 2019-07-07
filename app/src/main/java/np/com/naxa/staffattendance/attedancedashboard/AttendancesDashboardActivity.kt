@@ -151,12 +151,14 @@ class AttendancesDashboardActivity : AppCompatActivity() {
         for (x in 0 downTo -6 step 1) {
             val date = DateConvertor.getPastDate(x)
             val yearMonthDay = DateConvertor.getYearMonthDay(date);
+            var isAttedanceForToday = x == 0;
             list.add(element = AttendanceDay(dayOfWeek = yearMonthDay[2],
                     dayOfMonth = yearMonthDay[1],
                     date = yearMonthDay[0],
                     absentNoOfStaff = "",
                     presentNoOfStaff = "",
                     teamId = teamId,
+                    isAttendanceForToday = isAttedanceForToday,
                     teamName = teamName,
                     fullDate = DateConvertor.formatDate(DateConvertor.getPastDate(x))));
         }
