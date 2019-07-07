@@ -9,4 +9,5 @@ data class AttendanceDay(val dayOfWeek: String,
                          val presentNoOfStaff: String,
                          val teamId: String,
                          val teamName: String,
+                         val isAttendanceForToday: Boolean,
                          val fullDate: String) : IRow
