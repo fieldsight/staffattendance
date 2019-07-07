@@ -20,7 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
 
-    public static final int DATABASE_VERSION = 8;
+    public static final int DATABASE_VERSION = 9;
 
 
     // Database Name
@@ -77,7 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TABLE_STAFF +
             "(" +
             KEY_ID + " INTEGER PRIMARY KEY," +
-            KEY_ID_PASS + " TEXT ," +
+            KEY_ID_PASS + " TEXT UNIQUE," +
             KEY_STAFF_TEAM_ID + " TEXT," +//todo if team will have more attr than name and id, make new team table
             KEY_STAFF_TEAM_NAME + " TEXT," +
             KEY_STAFF_FULL_NAME + " TEXT," +
@@ -108,7 +108,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TABLE_NEW_STAFF +
             "(" +
             KEY_ID + " INTEGER PRIMARY KEY," +
-            KEY_ID_PASS + " TEXT ," +
+            KEY_ID_PASS + " TEXT UNIQUE," +
             KEY_STAFF_DESIGNATION + " INTEGER," +
             KEY_STAFF_DESIGNATION_LABEL + " TEXT," +
             KEY_STAFF_FIRST_NAME + " TEXT," +
