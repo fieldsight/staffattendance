@@ -158,7 +158,7 @@ class AttendancesDashboardActivity : AppCompatActivity() {
                     presentNoOfStaff = "",
                     teamId = teamId,
                     teamName = teamName,
-                    fullDate = DateConvertor.formatDate(DateConvertor.getDateForPosition(x))));
+                    fullDate = DateConvertor.formatDate(DateConvertor.getPastDate(x))));
         }
 
         return list;

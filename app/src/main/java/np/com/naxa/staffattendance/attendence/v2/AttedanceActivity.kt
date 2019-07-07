@@ -1,23 +1,18 @@
 package np.com.naxa.staffattendance.attendence.v2
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.MenuItem
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_dashboard_attedance.*
 import np.com.naxa.staffattendance.R
 import np.com.naxa.staffattendance.StaffListAdapter
-import np.com.naxa.staffattendance.attedancedashboard.AttedanceBottomFragment
 import np.com.naxa.staffattendance.attedancedashboard.AttedanceLocalSource
 import np.com.naxa.staffattendance.attedancedashboard.ItemOffsetDecoration
 import np.com.naxa.staffattendance.attendence.AttendanceResponse
@@ -25,7 +20,6 @@ import np.com.naxa.staffattendance.attendence.AttendanceResponse
 import np.com.naxa.staffattendance.attendence.TeamMemberResposne
 import np.com.naxa.staffattendance.common.BaseActivity
 import np.com.naxa.staffattendance.common.IntentConstants
-import np.com.naxa.staffattendance.common.SoundUtils
 import np.com.naxa.staffattendance.database.AttendanceDao
 import np.com.naxa.staffattendance.database.StaffDao
 import np.com.naxa.staffattendance.database.TeamDao
@@ -47,6 +41,7 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
     }
 
     private var loadedDate: String? = null;
+
     private lateinit var stafflistAdapter: StaffListAdapter
     private var teamDao: TeamDao? = null
     private var enablePersonSelection = true;
@@ -62,11 +57,12 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
         loadedDate = intent.getStringExtra(IntentConstants.ATTENDANCE_DATE);
         teamId = intent.getStringExtra(IntentConstants.TEAM_ID);
         teamName = intent.getStringExtra(IntentConstants.TEAM_NAME);
+        val loadedDateFormatted = intent.getStringExtra(IntentConstants.FORMATTED_DATE);
 
 //        val dailyAttendance = AttendanceDao().getAttedanceByDate(teamId, loadedDate)
 //        setAttendanceIds(dailyAttendance.presentStaffIds,dailyAttendance.getAttendanceDate(false))
 
-        setupToolbar(title = teamName)
+        setupToolbar(title = loadedDateFormatted)
         setupRecyclerView()
         swiperefresh.isEnabled = false
 
@@ -129,7 +125,6 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
         attendanceResponse.idPassProofs = Gson().toJson(hashMapOf(staff.id.trim().toBigInteger() to signedAction))
         attendanceResponse.dataSyncStatus = AttendanceDao.SyncStatus.FINALIZED
         AttedanceLocalSource.instance.updateAttendance(loadedDate, attendanceResponse, staff.teamID)
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -174,9 +169,10 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
 
 
     companion object {
-        fun newIntent(context: Context, date: String, teamId: String, teamName: String): Intent {
+        fun newIntent(context: Context, date: String, teamId: String, teamName: String, monthDay: String): Intent {
             val intent = Intent(context, AttedanceActivity::class.java)
             intent.putExtra(IntentConstants.ATTENDANCE_DATE, date);
+            intent.putExtra(IntentConstants.FORMATTED_DATE, monthDay);
             intent.putExtra(IntentConstants.TEAM_ID, teamId);
             intent.putExtra(IntentConstants.TEAM_NAME, teamName);
             return intent
