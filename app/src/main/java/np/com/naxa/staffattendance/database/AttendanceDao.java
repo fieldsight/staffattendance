@@ -213,12 +213,12 @@ public class AttendanceDao {
             JSONArray jsonArray = new JSONObject(attedance.getIDPassProofs()).names();
             ArrayList<Integer> ids = new ArrayList<>();
             for (int n = 0; n < jsonArray.length(); n++) {
-                String id = jsonArray.getString(n);
+                String id = jsonArray.getString(n).replace("\"", "").trim();
                 ids.add(Integer.valueOf(id));
             }
 
             contentValues.put(DatabaseHelper.KEY_STAFFS_IDS, ids.toString());
-        } catch (JSONException e) {
+        } catch (NumberFormatException | JSONException e) {
             Timber.e(e);
         }
 
@@ -277,7 +277,7 @@ public class AttendanceDao {
             attendanceResponse.setAttendanceDate(attendanceDate);
 
 
-            String idpassproofs = DatabaseHelper.getStringFromCursor(cursor,DatabaseHelper.KEY_ID_PASS_PROOFS);
+            String idpassproofs = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ID_PASS_PROOFS);
             try {
                 String arrayString = new JSONObject(idpassproofs).names().toString();
                 attendanceResponse.setStaffs(convertStaffIdsToList(arrayString));
