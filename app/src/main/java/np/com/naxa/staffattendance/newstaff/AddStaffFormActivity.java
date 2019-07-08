@@ -362,13 +362,12 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
                     boolean hasNotSaved = status1 == -1 || status2 == -1;
 
                     if (hasNotSaved) {
+                        ToastUtils.showLong("Failed to add member");
+                    } else {
                         finish();
                         startActivity(getIntent());
                         ToastUtils.showShort(staff.getFirstName() + " " + staff.getLastName() + " has been added.");
-                    } else {
-                        ToastUtils.showLong("Failed to add member");
                     }
-
                 }
                 break;
         }
@@ -442,7 +441,7 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
         } else if (TextUtils.isEmpty(idPassDID)) {
             showErrorMessage(idpassEnroll, "Please register with IDPASS");
             showErrorMessage(idpassIdentify, "Please register with IDPASS");
-        }  else {
+        } else {
             validation = true;
         }
         return validation;
@@ -635,7 +634,7 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
             if (isIDPassNotUNIQUE(idPassDID)) {
                 idpassValue.setText("Duplicate IDPASS registration");
 
-            }else {
+            } else {
                 idpassValue.setText(name + " - " + idPassDID);
             }
 
