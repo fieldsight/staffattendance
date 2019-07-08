@@ -23,7 +23,7 @@
 
             <EditText
 
-
+                android:text="dark.boi94@gmail.com"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
@@ -42,7 +42,7 @@
             app:passwordToggleEnabled="true">
 
             <EditText
-
+                android:text="12345678"
 
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
