@@ -88,6 +88,7 @@ public class AttendanceDao {
                         List<String> offlineIds = convertStaffIdsToList(staffIds);
 
                         List<String> updatedStaffIds = matchAndReplaceIds(offlineIds, pairs);
+                        Timber.i("Updated %s", updatedStaffIds);
 
                         AttendanceResponse attendanceResponse = new AttendanceResponse(attendanceDate, updatedStaffIds);
                         ContentValues values = new ContentValues();
@@ -100,9 +101,11 @@ public class AttendanceDao {
                         }
 
                         subscriber.onNext(attendanceResponse);
+                        Timber.i("onNext()");
                     }
 
                 } catch (Exception e) {
+                    Timber.e(e);
                     subscriber.onError(e);
                 } finally {
                     subscriber.onCompleted();
