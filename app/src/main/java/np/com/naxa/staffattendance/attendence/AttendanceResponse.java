@@ -33,6 +33,7 @@ public class AttendanceResponse {
     private List<String> staffs = null;
 
 
+    @SerializedName("id_pass_proof")
     @Expose
     private String IDPassProofs = null;
 
@@ -102,7 +103,12 @@ public class AttendanceResponse {
     public List<String> getPresentStaffIds() {
 
         try {
+
+            if(IDPassProofs.contains("u'")){
+                IDPassProofs = IDPassProofs.replace("u'", "'");
+            }
             JSONObject jsonObject = new JSONObject(IDPassProofs);
+
             JSONArray array = jsonObject.names();
 
 

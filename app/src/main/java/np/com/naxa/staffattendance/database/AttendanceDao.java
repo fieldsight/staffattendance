@@ -97,14 +97,14 @@ public class AttendanceDao {
                                 Object value = json.get(key);
                                 for (Pair<String, String> p : pairs) {
                                     boolean doesOfflineKeyMatch = key.equals(p.first);
-                                    Timber.i("Checking if %s and %s match",key,p.first);
+                                    Timber.i("Checking if %s and %s match", key, p.first);
                                     if (doesOfflineKeyMatch) {
                                         jsonObject.put(p.second, value);
                                     }
                                 }
                             }
 
-                            if(jsonObject.length() == 0){
+                            if (jsonObject.length() == 0) {
                                 Timber.i(json.toString());
                                 throw new RuntimeException("Opps");
                             }
@@ -249,7 +249,6 @@ public class AttendanceDao {
     }
 
 
-
     public Observable<?> saveAttendance(List<AttendanceResponse> attendanceRespons) {
         SQLiteDatabase db = DatabaseHelper.getDatabaseHelper().getWritableDatabase();
         try {
@@ -302,14 +301,8 @@ public class AttendanceDao {
 
 
             String idpassproofs = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ID_PASS_PROOFS);
-            try {
-                String arrayString = new JSONObject(idpassproofs).names().toString();
-                attendanceResponse.setStaffs(convertStaffIdsToList(arrayString));
-                attendanceResponse.setIDPassProofs(idpassproofs);
+            attendanceResponse.setIDPassProofs(idpassproofs);
 
-            } catch (NullPointerException| JSONException e) {
-                e.printStackTrace();
-            }
 
             attendanceRespons.add(attendanceResponse);
 
