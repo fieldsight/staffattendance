@@ -393,6 +393,8 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
     private boolean validate() {
         boolean validation = false;
 
+
+
         Object selectedDesignation = designationSpinner.getSelectedItem();
         List<String> selected = (List<String>) (selectedDesignation);
 

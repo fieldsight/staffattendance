@@ -229,13 +229,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             try {
                                 HttpException httpException = (HttpException) e;
                                 ResponseBody responseBody = httpException.response().errorBody();
-                                switch (httpException.code()) {
-                                    case 404:
-                                        showErrorDialog("You are not assigned to a team yet");
-                                        break;
-                                    default:
-                                        showErrorDialog(responseBody.string());
-                                        break;
+                                if (httpException.code() == 404) {
+                                    showErrorDialog("You are not assigned to a team yet");
+                                } else {
+                                    showErrorDialog(responseBody.string());
                                 }
 
                             } catch (NullPointerException | IOException e1) {

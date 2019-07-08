@@ -178,5 +178,4 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
             return intent
         }
     }
-
 }

@@ -190,13 +190,10 @@ public class TeamRemoteSource {
                     }
                 })
                 .flatMapIterable((Func1<ArrayList<AttendanceResponse>, Iterable<AttendanceResponse>>) attendanceRespons -> attendanceRespons)
-                .flatMap((Func1<AttendanceResponse, Observable<AttendanceResponse>>) attendanceResponse -> {
-
-                    return api.postAttendanceForTeam(teamId,
-                            attendanceResponse.getAttendanceDate(false),
-                            attendanceResponse.getIDPassProofs(),
-                            attendanceResponse.getPresentStaffIds());
-                });
+                .flatMap((Func1<AttendanceResponse, Observable<AttendanceResponse>>) attendanceResponse -> api.postAttendanceForTeam(teamId,
+                        attendanceResponse.getAttendanceDate(false),
+                        attendanceResponse.getIDPassProofs(),
+                        attendanceResponse.getPresentStaffIds()));
 
 
         return Observable.concat(uploadNewStaff, teamlist, pastAttendance, attendanceSheet, pastAttendance);

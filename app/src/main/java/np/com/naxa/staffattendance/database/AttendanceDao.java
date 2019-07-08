@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import np.com.naxa.staffattendance.attendence.AttendanceResponse;
 import np.com.naxa.staffattendance.utlils.DateConvertor;
@@ -70,13 +71,13 @@ public class AttendanceDao {
 
     public Observable<AttendanceResponse> updateStaffIdObservable(List<Pair<String, String>> pairs) {
 
-
         return Observable.create(new Observable.OnSubscribe<AttendanceResponse>() {
-            Cursor cursor = null;
-
             @Override
             public void call(Subscriber<? super AttendanceResponse> subscriber) {
+                Cursor cursor = null;
+
                 try {
+
                     cursor = DatabaseHelper
                             .getDatabaseHelper()
                             .getReadableDatabase()
@@ -86,7 +87,6 @@ public class AttendanceDao {
                         String staffIds = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_STAFFS_IDS);
                         String attendanceDate = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ATTENDACE_DATE);
                         List<String> offlineIds = convertStaffIdsToList(staffIds);
-
                         List<String> updatedStaffIds = matchAndReplaceIds(offlineIds, pairs);
 
                         AttendanceResponse attendanceResponse = new AttendanceResponse(attendanceDate, updatedStaffIds);
@@ -100,19 +100,19 @@ public class AttendanceDao {
                         }
 
                         subscriber.onNext(attendanceResponse);
-                    }
+                        subscriber.onCompleted();
 
+                    }
                 } catch (Exception e) {
                     subscriber.onError(e);
                 } finally {
-                    subscriber.onCompleted();
+                    if (cursor != null) {
+                        cursor.close();
+                    }
                 }
-
 
             }
         });
-
-
     }
 
     private List<String> matchAndReplaceIds(List<String> offlineIds, List<Pair<String, String>> offlineOnlineIdMap) {
@@ -137,6 +137,7 @@ public class AttendanceDao {
     private List<String> convertStaffIdsToList(String staffIds) {
         Type type = new TypeToken<List<String>>() {
         }.getType();
+
         return new Gson().fromJson(staffIds, type);
     }
 
@@ -175,8 +176,6 @@ public class AttendanceDao {
             if (!staffIdList.isEmpty()) {
                 Timber.i("updateStaffId new list %s", staffIds);
             }
-
-            Log.i("Apple", "array " + staffIdList);
         }
 
         closeCursor(cursor);
@@ -213,8 +212,8 @@ public class AttendanceDao {
             JSONArray jsonArray = new JSONObject(attedance.getIDPassProofs()).names();
             ArrayList<Integer> ids = new ArrayList<>();
             for (int n = 0; n < jsonArray.length(); n++) {
-                String id = jsonArray.getString(n).replace("\"", "").trim();
-                ids.add(Integer.valueOf(id));
+                int id = jsonArray.getInt(n);
+                ids.add(id);
             }
 
             contentValues.put(DatabaseHelper.KEY_STAFFS_IDS, ids.toString());
@@ -222,8 +221,22 @@ public class AttendanceDao {
             Timber.e(e);
         }
 
+
         contentValues.put(DatabaseHelper.KEY_ID_PASS_PROOFS, attedance.getIDPassProofs());
         return contentValues;
+    }
+
+    private String removeDoubleQuotes(String input) {
+        String sub = input.substring(1, input.length() - 1);
+        return sub;
+//        StringBuilder sb = new StringBuilder();
+//
+//        char[] tab = input.toCharArray();
+//        for (char current : tab) {
+//            if (current != '"')
+//                sb.append(current);
+//        }
+//        return sb.toString();
     }
 
     public Observable<?> saveAttendance(List<AttendanceResponse> attendanceRespons) {

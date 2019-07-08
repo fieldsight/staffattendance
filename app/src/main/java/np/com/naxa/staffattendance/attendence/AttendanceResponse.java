@@ -99,15 +99,7 @@ public class AttendanceResponse {
     }
 
     public List<String> getPresentStaffIds() {
-
-        try {
-            String arrayString = new JSONObject(IDPassProofs).names().toString();
-            return convertStaffIdsToList(arrayString);
-
-        } catch (NullPointerException | JSONException ignored) {
-
-        }
-        return new ArrayList<>();
+        return staffs;
     }
 
     public void setStaffs(List<String> staffs) {

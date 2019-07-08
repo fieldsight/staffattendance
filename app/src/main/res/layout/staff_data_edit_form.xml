@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:hint="First Name"
             android:inputType="text"
-            android:text=""
+            android:text="Nishon"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
     </android.support.design.widget.TextInputLayout>
 
@@ -57,6 +57,7 @@
         android:layout_marginTop="4dp">
 
         <EditText
+            android:text="Nishon"
 
             style="@style/OfflineSiteEditText"
             android:layout_width="match_parent"
@@ -234,6 +235,7 @@
         android:layout_marginTop="4dp">
 
         <android.support.design.widget.TextInputEditText
+            android:text="Nishon"
 
             style="@style/OfflineSiteEditText"
             android:layout_width="match_parent"
@@ -253,6 +255,7 @@
         android:layout_marginTop="4dp">
 
         <android.support.design.widget.TextInputEditText
+            android:text="Nishon"
 
 
             style="@style/OfflineSiteEditText"
@@ -273,6 +276,7 @@
         android:layout_marginTop="4dp">
 
         <android.support.design.widget.TextInputEditText
+            android:text="Nishon"
 
             style="@style/OfflineSiteEditText"
             android:layout_width="match_parent"
