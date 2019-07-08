@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,6 +33,7 @@ public class AttendanceResponse {
     private List<String> staffs = null;
 
 
+    @SerializedName("id_pass_proof")
     @Expose
     private String IDPassProofs = null;
 
@@ -99,7 +101,23 @@ public class AttendanceResponse {
     }
 
     public List<String> getPresentStaffIds() {
-        return staffs;
+
+        try {
+
+            if(IDPassProofs.contains("u'")){
+                IDPassProofs = IDPassProofs.replace("u'", "'");
+            }
+            JSONObject jsonObject = new JSONObject(IDPassProofs);
+
+            JSONArray array = jsonObject.names();
+
+
+            return convertStaffIdsToList(array.toString());
+        } catch (NullPointerException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
     }
 
     public void setStaffs(List<String> staffs) {
