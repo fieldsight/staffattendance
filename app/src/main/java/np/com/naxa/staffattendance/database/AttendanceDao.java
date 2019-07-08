@@ -3,22 +3,18 @@ package np.com.naxa.staffattendance.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import np.com.naxa.staffattendance.attendence.AttendanceResponse;
 import np.com.naxa.staffattendance.utlils.DateConvertor;
@@ -84,9 +80,10 @@ public class AttendanceDao {
                             .getReadableDatabase()
                             .query(TABLE_NAME, null, DatabaseHelper.KEY_SYNC_STATUS + "=?", new String[]{SyncStatus.FINALIZED}, null, null, null);
 
-                    if(cursor.getCount() == 0){
+                    if(cursor.getCount() == 0 || pairs.size() == 0){
                         subscriber.onNext("");
                         subscriber.onCompleted();
+                        return;
                     }
 
                     while (cursor.moveToNext()) {
@@ -111,7 +108,7 @@ public class AttendanceDao {
 
                             if (jsonObject.length() == 0) {
                                 Timber.i(json.toString());
-                                throw new RuntimeException("Opps");
+                                throw new RuntimeException("Unexpected error occured");
                             }
 
                             ContentValues values = new ContentValues();

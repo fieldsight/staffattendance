@@ -6,6 +6,7 @@ import android.util.Pair;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import np.com.naxa.staffattendance.application.StaffAttendance;
@@ -100,16 +101,17 @@ public class TeamRemoteSource {
 
 
         ArrayList<NewStaffPojo> unsyncedStaffList = new NewStaffDao().getOfflineStaffs();
-        Observable<Object> uploadNewStaff = Observable.just(unsyncedStaffList)
+        Observable<List<Object>> uploadNewStaff = Observable.just(unsyncedStaffList)
                 .flatMapIterable((Func1<ArrayList<NewStaffPojo>, Iterable<NewStaffPojo>>) newStaffPojos -> newStaffPojos)
-                .flatMap(new Func1<NewStaffPojo, Observable<Pair<String, String>>>() {
+                .flatMap(new Func1<NewStaffPojo, Observable<?>>() {
                     @Override
-                    public Observable<Pair<String, String>> call(NewStaffPojo newStaffPojo) {
+                    public Observable<?> call(NewStaffPojo newStaffPojo) {
                         String filePath = newStaffPojo.getPhoto();
                         File file = null;
                         if (!TextUtils.isEmpty(filePath)) {
                             file = new File(filePath);
                         }
+
                         return newStaffCall.newStaffObservable(newStaffPojo, file)
                                 .map(new Func1<NewStaffPojo, Pair<String, String>>() {
                                     @Override
@@ -117,16 +119,16 @@ public class TeamRemoteSource {
                                         NewStaffDao.getInstance().deleteStaffById(String.valueOf(newStaffPojo.getId()));
                                         return Pair.create(newStaffPojo.getId(), uploadedStaff.getId());
                                     }
+                                })
+                                .flatMap(new Func1<Pair<String, String>, Observable<Object>>() {
+                                    @Override
+                                    public Observable<Object> call(Pair<String, String> stringStringPair) {
+                                        return AttendanceDao.getInstance().updateStaffIdObservable(Collections.singletonList(stringStringPair));
+                                    }
                                 });
                     }
                 })
-                .toList()
-                .flatMap(new Func1<List<Pair<String, String>>, Observable<Object>>() {
-                    @Override
-                    public Observable<Object> call(List<Pair<String, String>> pairs) {
-                        return AttendanceDao.getInstance().updateStaffIdObservable(pairs);
-                    }
-                });
+                .toList();
 
 
         Observable<List<TeamMemberResposne>> teamlist = api.getMyTeam()
