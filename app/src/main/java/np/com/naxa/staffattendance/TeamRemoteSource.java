@@ -6,6 +6,7 @@ import android.util.Pair;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import np.com.naxa.staffattendance.application.StaffAttendance;
@@ -117,13 +118,14 @@ public class TeamRemoteSource {
                                     @Override
                                     public Pair<String, String> call(NewStaffPojo uploadedStaff) {
                                         NewStaffDao.getInstance().deleteStaffById(String.valueOf(newStaffPojo.getId()));
+
                                         return Pair.create(newStaffPojo.getId(), uploadedStaff.getId());
                                     }
                                 })
                                 .toList()
-                                .flatMap(new Func1<List<Pair<String, String>>, Observable<AttendanceResponse>>() {
+                                .flatMap(new Func1<List<Pair<String, String>>, Observable<Object>>() {
                                     @Override
-                                    public Observable<AttendanceResponse> call(List<Pair<String, String>> pairs) {
+                                    public Observable<Object> call(List<Pair<String, String>> pairs) {
                                         return AttendanceDao.getInstance().updateStaffIdObservable(pairs);
                                     }
                                 });

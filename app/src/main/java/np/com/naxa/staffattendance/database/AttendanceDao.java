@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -41,7 +42,7 @@ public class AttendanceDao {
     public int updateAttendance(String date, String teamId) {
 //        String selection = DatabaseHelper.KEY_ATTENDACE_DATE + "=? AND " + DatabaseHelper.KEY_STAFF_TEAM_ID + "=?";
         String selection = DatabaseHelper.KEY_ATTENDACE_DATE;
-        String[] selectionArgs = new String[]{date, teamId};
+        String[] selectionArgs = new String[]{date};
         return updateAttendance(getContentValuesForStatusUpdate(), selection, selectionArgs);
     }
 
@@ -69,11 +70,11 @@ public class AttendanceDao {
     }
 
 
-    public Observable<AttendanceResponse> updateStaffIdObservable(List<Pair<String, String>> pairs) {
+    public Observable<Object> updateStaffIdObservable(List<Pair<String, String>> pairs) {
 
-        return Observable.create(new Observable.OnSubscribe<AttendanceResponse>() {
+        return Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
-            public void call(Subscriber<? super AttendanceResponse> subscriber) {
+            public void call(Subscriber<? super Object> subscriber) {
                 Cursor cursor = null;
 
                 try {
@@ -84,23 +85,44 @@ public class AttendanceDao {
                             .query(TABLE_NAME, null, DatabaseHelper.KEY_SYNC_STATUS + "=?", new String[]{SyncStatus.FINALIZED}, null, null, null);
 
                     while (cursor.moveToNext()) {
-                        String staffIds = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_STAFFS_IDS);
                         String attendanceDate = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ATTENDACE_DATE);
-                        List<String> offlineIds = convertStaffIdsToList(staffIds);
-                        List<String> updatedStaffIds = matchAndReplaceIds(offlineIds, pairs);
+                        String idpassproofs = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ID_PASS_PROOFS);
 
-                        AttendanceResponse attendanceResponse = new AttendanceResponse(attendanceDate, updatedStaffIds);
-                        ContentValues values = new ContentValues();
-                        values.put(DatabaseHelper.KEY_STAFFS_IDS, updatedStaffIds.toString());
+                        try {
+                            JSONObject json = new JSONObject(idpassproofs);
+                            Iterator<String> iter = json.keys();
+                            JSONObject jsonObject = new JSONObject();
+                            while (iter.hasNext()) {
+                                String key = iter.next();
+                                Object value = json.get(key);
+                                for (Pair<String, String> p : pairs) {
+                                    boolean doesOfflineKeyMatch = key.equals(p.first);
+                                    Timber.i("Checking if %s and %s match",key,p.first);
+                                    if (doesOfflineKeyMatch) {
+                                        jsonObject.put(p.second, value);
+                                    }
+                                }
+                            }
 
-                        int rowsAffected = update(values, DatabaseHelper.KEY_ATTENDACE_DATE + "=?", new String[]{attendanceDate});
+                            if(jsonObject.length() == 0){
+                                Timber.i(json.toString());
+                                throw new RuntimeException("Opps");
+                            }
 
-                        if (rowsAffected == 0) {
-                            throw new RuntimeException("Mismatch no date exists to update");
+                            ContentValues values = new ContentValues();
+                            values.put(DatabaseHelper.KEY_ID_PASS_PROOFS, jsonObject.toString());
+                            int rowsAffected = update(values, DatabaseHelper.KEY_ATTENDACE_DATE + "=?", new String[]{attendanceDate});
+
+                            if (rowsAffected == 0) {
+                                throw new RuntimeException("Mismatch no date exists to update");
+                            }
+
+
+                            subscriber.onNext(jsonObject);
+                            subscriber.onCompleted();
+                        } catch (JSONException e) {
+                            throw new RuntimeException("Failed to cascade date");
                         }
-
-                        subscriber.onNext(attendanceResponse);
-                        subscriber.onCompleted();
 
                     }
                 } catch (Exception e) {
@@ -208,36 +230,25 @@ public class AttendanceDao {
         contentValues.put(DatabaseHelper.KEY_ATTENDACE_DATE, date);
         contentValues.put(DatabaseHelper.KEY_SYNC_STATUS, attedance.getDataSyncStatus());
 
-        try {
-            JSONArray jsonArray = new JSONObject(attedance.getIDPassProofs()).names();
-            ArrayList<Integer> ids = new ArrayList<>();
-            for (int n = 0; n < jsonArray.length(); n++) {
-                int id = jsonArray.getInt(n);
-                ids.add(id);
-            }
-
-            contentValues.put(DatabaseHelper.KEY_STAFFS_IDS, ids.toString());
-        } catch (NumberFormatException | JSONException e) {
-            Timber.e(e);
-        }
+//        try {
+//            JSONArray jsonArray = new JSONObject(attedance.getIDPassProofs()).names();
+//            ArrayList<Integer> ids = new ArrayList<>();
+//            for (int n = 0; n < jsonArray.length(); n++) {
+//                int id = jsonArray.getInt(n);
+//                ids.add(id);
+//            }
+//
+//            contentValues.put(DatabaseHelper.KEY_STAFFS_IDS, ids.toString());
+//        } catch (NumberFormatException | JSONException e) {
+//            Timber.e(e);
+//        }
 
 
         contentValues.put(DatabaseHelper.KEY_ID_PASS_PROOFS, attedance.getIDPassProofs());
         return contentValues;
     }
 
-    private String removeDoubleQuotes(String input) {
-        String sub = input.substring(1, input.length() - 1);
-        return sub;
-//        StringBuilder sb = new StringBuilder();
-//
-//        char[] tab = input.toCharArray();
-//        for (char current : tab) {
-//            if (current != '"')
-//                sb.append(current);
-//        }
-//        return sb.toString();
-    }
+
 
     public Observable<?> saveAttendance(List<AttendanceResponse> attendanceRespons) {
         SQLiteDatabase db = DatabaseHelper.getDatabaseHelper().getWritableDatabase();
@@ -296,7 +307,7 @@ public class AttendanceDao {
                 attendanceResponse.setStaffs(convertStaffIdsToList(arrayString));
                 attendanceResponse.setIDPassProofs(idpassproofs);
 
-            } catch (JSONException e) {
+            } catch (NullPointerException| JSONException e) {
                 e.printStackTrace();
             }
 

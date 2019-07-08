@@ -365,7 +365,6 @@ public class AddStaffFormActivity extends BaseActivity implements View.OnClickLi
                         ToastUtils.showLong("Failed to add member");
                     } else {
                         finish();
-                        startActivity(getIntent());
                         ToastUtils.showShort(staff.getFirstName() + " " + staff.getLastName() + " has been added.");
                     }
                 }
