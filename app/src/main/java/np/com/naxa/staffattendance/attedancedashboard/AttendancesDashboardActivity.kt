@@ -34,6 +34,7 @@ import rx.functions.Action0
 import rx.schedulers.Schedulers
 import timber.log.Timber
 import java.io.IOException
+import java.lang.Exception
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
@@ -113,7 +114,11 @@ class AttendancesDashboardActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String) {
-        ToastUtils.showLong(message)
+        try {
+            DialogFactory.createMessageDialog(this, message, "").show()
+        } catch (e: Exception) {
+            ToastUtils.showLong(message)
+        }
         swiperefresh.isRefreshing = false
     }
 

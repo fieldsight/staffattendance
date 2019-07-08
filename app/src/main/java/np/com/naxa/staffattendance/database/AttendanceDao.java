@@ -84,6 +84,11 @@ public class AttendanceDao {
                             .getReadableDatabase()
                             .query(TABLE_NAME, null, DatabaseHelper.KEY_SYNC_STATUS + "=?", new String[]{SyncStatus.FINALIZED}, null, null, null);
 
+                    if(cursor.getCount() == 0){
+                        subscriber.onNext("");
+                        subscriber.onCompleted();
+                    }
+
                     while (cursor.moveToNext()) {
                         String attendanceDate = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ATTENDACE_DATE);
                         String idpassproofs = DatabaseHelper.getStringFromCursor(cursor, DatabaseHelper.KEY_ID_PASS_PROOFS);
