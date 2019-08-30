@@ -29,7 +29,7 @@ public interface ApiInterface {
 
 
     @FormUrlEncoded
-    @POST("users/api/get-auth-token")
+    @POST("users/api/get-auth-token/")
     Call<LoginResponse> getLoginDetails(
             @Field("email_or_username") String username,
             @Field("password") String password

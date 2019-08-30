@@ -66,23 +66,34 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
         setupRecyclerView()
         swiperefresh.isEnabled = false
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            nfcAdapter = NfcAdapter.getDefaultAdapter(applicationContext)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                nfcAdapter = NfcAdapter.getDefaultAdapter(applicationContext)
+            }
+        } catch (e: Exception) {
+            // Must be safe
         }
+
     }
 
     public override fun onResume() {
         super.onResume()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            nfcAdapter.enableReaderMode(this, { tag ->
-                val intent = IDPassIntent.intentIdentify(
-                        IDPassConstants.IDPASS_TYPE_MIFARE,
-                        true,
-                        true,
-                        tag)
-                startActivityForResult(intent, IDENTIFY_RESULT_INTENT)
-            }, NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, null)
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                nfcAdapter.enableReaderMode(this, { tag ->
+                    val intent = IDPassIntent.intentIdentify(
+                            IDPassConstants.IDPASS_TYPE_MIFARE,
+                            true,
+                            true,
+                            tag)
+                    startActivityForResult(intent, IDENTIFY_RESULT_INTENT)
+                }, NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, null)
+            }
+        } catch (e: Exception) {
+
         }
+
     }
 
 
