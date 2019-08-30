@@ -99,8 +99,12 @@ class AttedanceActivity : BaseActivity(), StaffListAdapter.OnStaffItemClickListe
 
     public override fun onPause() {
         super.onPause()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            nfcAdapter.disableReaderMode(this)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                nfcAdapter.disableReaderMode(this)
+            }
+        } catch (e: Exception) {
+
         }
     }
 
